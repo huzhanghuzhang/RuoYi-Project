@@ -88,4 +88,12 @@ public interface GenTableMapper
      * @return 结果
      */
     public int createTable(String sql);
+
+    /**
+     * 删除表
+     *
+     * @param tableName 表名
+     * @return 删除结果
+     */
+    int deleteGenTable(String tableName);
 }

@@ -164,9 +164,14 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="24">
+          <el-col :span="12">
             <el-form-item label="模块标识" prop="moduleKey">
               <el-input v-model="form.moduleKey" placeholder="请输入模块标识(菜单路由)" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="模块排序" prop="moduleSort">
+              <el-input-number v-model="form.moduleSort" controls-position="right" :min="4" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -235,7 +240,8 @@ export default {
           { required: true, message: "项目ID不能为空", trigger: "change" }
         ],
         moduleSort: [
-          { required: true, message: "模块排序不能为空", trigger: "change" }
+          { required: true, message: "模块排序不能为空", trigger: "change" },
+          { type: 'number', min: 4, message: '模块排序不能小于4', trigger: 'change' }
         ],
         moduleName: [
           { required: true, message: "模块名称不能为空", trigger: "blur" }
@@ -282,7 +288,7 @@ export default {
       this.form = {
         moduleId: null,
         projectId: null,
-        moduleSort: null,
+        moduleSort: 4,
         moduleName: null,
         moduleIcon: null,
         moduleKey: null,

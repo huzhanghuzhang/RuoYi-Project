@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import com.ruoyi.common.infrastructure.GenTableInfra;
+import com.ruoyi.common.model.GenTableDto;
+import com.ruoyi.common.utils.SecurityUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.Template;
@@ -42,7 +47,7 @@ import com.ruoyi.generator.util.VelocityUtils;
  * @author ruoyi
  */
 @Service
-public class GenTableServiceImpl implements IGenTableService
+public class GenTableServiceImpl implements IGenTableService, GenTableInfra
 {
     private static final Logger log = LoggerFactory.getLogger(GenTableServiceImpl.class);
 
@@ -62,6 +67,10 @@ public class GenTableServiceImpl implements IGenTableService
     public GenTable selectGenTableById(Long id)
     {
         GenTable genTable = genTableMapper.selectGenTableById(id);
+        if (genTable == null)
+        {
+            return null;
+        }
         setTableFromOptions(genTable);
         return genTable;
     }
@@ -527,5 +536,118 @@ public class GenTableServiceImpl implements IGenTableService
             return System.getProperty("user.dir") + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table);
         }
         return genPath + File.separator + VelocityUtils.getFileName(template, table);
+    }
+
+    @Override
+    public GenTableDto addTable(GenTableDto genTableDto) {
+        GenTable genTable = new GenTable();
+        copyProperty(genTableDto, genTable);
+        genTable.setGenType("0");
+        genTable.setGenPath("/");
+        genTable.setTplCategory("crud");
+        genTable.setTplWebType("element-ui");
+        genTable.setOptions("{\"parentMenuId\":2000}");
+        genTable.setCreateBy(SecurityUtils.getUsername());
+        genTable.setUpdateBy(SecurityUtils.getUsername());
+        genTable.setCreateTime(new Date());
+        genTable.setUpdateTime(new Date());
+
+        genTableMapper.insertGenTable(genTable);
+        genTableDto.setTableId(genTable.getTableId());
+        return genTableDto;
+    }
+
+    private static void copyProperty(GenTableDto genTableDto, GenTable genTable) {
+        genTable.setTableName(genTableDto.getTableName());
+        genTable.setTableComment(genTableDto.getTableComment());
+        genTable.setClassName(GenUtils.convertClassName(genTableDto.getTableName()));
+        genTable.setPackageName(genTableDto.getPackageName());
+        genTable.setModuleName(genTableDto.getModuleName());
+        genTable.setBusinessName(genTableDto.getBusinessName());
+        genTable.setFunctionName(genTableDto.getFunctionName());
+        genTable.setFunctionAuthor(SecurityUtils.getUsername());
+    }
+
+    @Override
+    @Transactional
+    public GenTableDto updateTable(GenTableDto genTableDto) {
+        GenTable genTable = selectGenTableById(genTableDto.getTableId());
+        if(genTable==null){
+            return addTable(genTableDto);
+        }
+
+        boolean changeName = !genTable.getTableName().equals(genTableDto.getTableName());
+        boolean changeComment = !genTable.getTableComment().equals(genTableDto.getTableComment());
+        if (changeName || changeComment) {
+            List<GenTableColumn> genTableColumns = genTableColumnMapper.selectGenTableColumnListByTableId(genTable.getTableId());
+            //生成创建表SQL脚本
+            String sql = buildCreateTableSql(genTable, genTableColumns);
+            if(StringUtils.isNotEmpty(sql)) {
+                genTableMapper.deleteGenTable(genTable.getTableName());
+                genTableMapper.createTable(sql);
+            }
+        }
+
+        copyProperty(genTableDto, genTable);
+        genTable.setUpdateBy(SecurityUtils.getUsername());
+        genTable.setUpdateTime(new Date());
+        genTableMapper.updateGenTable(genTable);
+
+        return genTableDto;
+    }
+
+    private String buildCreateTableSql(GenTable genTable, List<GenTableColumn> genTableColumns) {
+        if (genTableColumns == null || genTableColumns.isEmpty()) {
+            return "";
+        }
+        StringBuilder sql = new StringBuilder();
+        sql.append("CREATE TABLE \"").append(genTable.getTableName()).append("\" (\n");
+        
+        // 收集主键列，用于定义表级主键约束
+        StringBuilder pkColumns = new StringBuilder();
+        
+        for (int i = 0; i < genTableColumns.size(); i++) {
+            GenTableColumn column = genTableColumns.get(i);
+            sql.append("  \"").append(column.getColumnName()).append("\" ");
+            sql.append(column.getColumnType());
+            
+            // 添加自增约束
+            if (column.getIsIncrement() != null && "1".equals(column.getIsIncrement())) {
+                sql.append(" AUTO_INCREMENT");
+            }
+            
+            // 添加非空约束
+            if (column.getIsRequired() != null && "1".equals(column.getIsRequired())) {
+                sql.append(" NOT NULL");
+            }
+            
+            // 收集主键列名
+            if (column.getIsPk() != null && "1".equals(column.getIsPk())) {
+                if (pkColumns.length() > 0) {
+                    pkColumns.append(", ");
+                }
+                pkColumns.append("\"").append(column.getColumnName()).append("\"");
+            }
+            
+            // 添加列注释
+            if (StringUtils.isNotEmpty(column.getColumnComment())) {
+                sql.append(" COMMENT '\"").append(column.getColumnComment()).append("\"'");
+            }
+            
+            if (i < genTableColumns.size() - 1) {
+                sql.append(",\n");
+            } else {
+                sql.append("\n");
+            }
+        }
+        
+        // 如果存在主键，则添加主键约束
+        if (pkColumns.length() > 0) {
+            sql.append(",\n  PRIMARY KEY (").append(pkColumns).append(")");
+        }
+        
+        sql.append("\n) ENGINE=InnoDB COMMENT='\"").append(genTable.getTableComment()).append("\"';");
+        
+        return sql.toString();
     }
 }

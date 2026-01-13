@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="Project" id="ProjectResult">
         <result property="projectId"    column="project_id"    />
         <result property="projectName"    column="project_name"    />
+        <result property="projectKey"    column="project_key"    />
         <result property="projectDescription"    column="project_description"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
@@ -15,13 +16,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectProjectVo">
-        select project_id, project_name, project_description, create_by, create_time, update_by, update_time from project
+        select project_id, project_name, project_key, project_description, create_by, create_time, update_by, update_time from project
     </sql>
 
     <select id="selectProjectList" parameterType="Project" resultMap="ProjectResult">
         <include refid="selectProjectVo"/>
         <where>  
             <if test="projectName != null  and projectName != ''"> and project_name like concat('%', #{projectName}, '%')</if>
+             <if test="projectKey != null  and projectKey != ''"> and project_key = #{projectKey}</if>
             <if test="projectDescription != null  and projectDescription != ''"> and project_description = #{projectDescription}</if>
         </where>
     </select>
@@ -35,6 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into project
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="projectName != null and projectName != ''">project_name,</if>
+            <if test="projectKey != null and projectKey !=''">project_key,</if>
             <if test="projectDescription != null">project_description,</if>
             <if test="createBy != null">create_by,</if>
             <if test="createTime != null">create_time,</if>
@@ -43,6 +46,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="projectName != null and projectName != ''">#{projectName},</if>
+            <if test="projectKey != null and projectKey !=''">#{projectKey},</if>
             <if test="projectDescription != null">#{projectDescription},</if>
             <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
@@ -55,6 +59,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update project
         <trim prefix="SET" suffixOverrides=",">
             <if test="projectName != null and projectName != ''">project_name = #{projectName},</if>
+            <if test="projectKey != null and projectKey !=''">project_key = #{projectKey},</if>
             <if test="projectDescription != null">project_description = #{projectDescription},</if>
             <if test="createBy != null">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>

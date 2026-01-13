@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.mapper.FeaturesMapper">
+    
+    <resultMap type="Features" id="FeaturesResult">
+        <result property="featureId"    column="feature_id"    />
+        <result property="tableId"    column="table_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="modeuleId"    column="modeule_id"    />
+        <result property="featureSort"    column="feature_sort"    />
+        <result property="featureName"    column="feature_name"    />
+        <result property="featureIcon"    column="feature_icon"    />
+        <result property="featureKey"    column="feature_key"    />
+        <result property="featureDescription"    column="feature_description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectFeaturesVo">
+        select feature_id, table_id, project_id, modeule_id, feature_sort, feature_name, feature_icon, feature_key, feature_description, create_by, create_time, update_by, update_time from features
+    </sql>
+
+    <select id="selectFeaturesList" parameterType="Features" resultMap="FeaturesResult">
+        <include refid="selectFeaturesVo"/>
+        <where>  
+            <if test="tableId != null "> and table_id = #{tableId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="modeuleId != null "> and modeule_id = #{modeuleId}</if>
+            <if test="featureSort != null "> and feature_sort = #{featureSort}</if>
+            <if test="featureName != null  and featureName != ''"> and feature_name like concat('%', #{featureName}, '%')</if>
+            <if test="featureIcon != null  and featureIcon != ''"> and feature_icon = #{featureIcon}</if>
+            <if test="featureKey != null  and featureKey != ''"> and feature_key = #{featureKey}</if>
+            <if test="featureDescription != null  and featureDescription != ''"> and feature_description = #{featureDescription}</if>
+        </where>
+    </select>
+    
+    <select id="selectFeaturesByFeatureId" parameterType="Integer" resultMap="FeaturesResult">
+        <include refid="selectFeaturesVo"/>
+        where feature_id = #{featureId}
+    </select>
+
+    <insert id="insertFeatures" parameterType="Features" useGeneratedKeys="true" keyProperty="featureId">
+        insert into features
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tableId != null">table_id,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="modeuleId != null">modeule_id,</if>
+            <if test="featureSort != null">feature_sort,</if>
+            <if test="featureName != null and featureName != ''">feature_name,</if>
+            <if test="featureIcon != null and featureIcon != ''">feature_icon,</if>
+            <if test="featureKey != null and featureKey != ''">feature_key,</if>
+            <if test="featureDescription != null">feature_description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tableId != null">#{tableId},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="modeuleId != null">#{modeuleId},</if>
+            <if test="featureSort != null">#{featureSort},</if>
+            <if test="featureName != null and featureName != ''">#{featureName},</if>
+            <if test="featureIcon != null and featureIcon != ''">#{featureIcon},</if>
+            <if test="featureKey != null and featureKey != ''">#{featureKey},</if>
+            <if test="featureDescription != null">#{featureDescription},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFeatures" parameterType="Features">
+        update features
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tableId != null">table_id = #{tableId},</if>
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="modeuleId != null">modeule_id = #{modeuleId},</if>
+            <if test="featureSort != null">feature_sort = #{featureSort},</if>
+            <if test="featureName != null and featureName != ''">feature_name = #{featureName},</if>
+            <if test="featureIcon != null and featureIcon != ''">feature_icon = #{featureIcon},</if>
+            <if test="featureKey != null and featureKey != ''">feature_key = #{featureKey},</if>
+            <if test="featureDescription != null">feature_description = #{featureDescription},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where feature_id = #{featureId}
+    </update>
+
+    <delete id="deleteFeaturesByFeatureId" parameterType="Integer">
+        delete from features where feature_id = #{featureId}
+    </delete>
+
+    <delete id="deleteFeaturesByFeatureIds" parameterType="String">
+        delete from features where feature_id in 
+        <foreach item="featureId" collection="array" open="(" separator="," close=")">
+            #{featureId}
+        </foreach>
+    </delete>
+</mapper>
