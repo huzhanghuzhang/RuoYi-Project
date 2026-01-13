@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.mapper.ModelsMapper">
+    
+    <resultMap type="Models" id="ModelsResult">
+        <result property="moduleId"    column="module_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="moduleSort"    column="modeule_sort"    />
+        <result property="moduleName"    column="module_name"    />
+        <result property="moduleIcon"    column="module_icon"    />
+        <result property="moduleKey"    column="module_key"    />
+        <result property="moduleDescription"    column="module_description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectModelsVo">
+        select module_id, project_id, modeule_sort, module_name, module_icon, module_key, module_description, create_by, create_time, update_by, update_time from models
+    </sql>
+
+    <select id="selectModelsList" parameterType="Models" resultMap="ModelsResult">
+        <include refid="selectModelsVo"/>
+        <where>  
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="moduleSort != null "> and modeule_sort = #{moduleSort}</if>
+            <if test="moduleName != null  and moduleName != ''"> and module_name like concat('%', #{moduleName}, '%')</if>
+            <if test="moduleIcon != null  and moduleIcon != ''"> and module_icon = #{moduleIcon}</if>
+            <if test="moduleKey != null  and moduleKey != ''"> and module_key = #{moduleKey}</if>
+            <if test="moduleDescription != null  and moduleDescription != ''"> and module_description = #{moduleDescription}</if>
+        </where>
+    </select>
+    
+    <select id="selectModelsByModuleId" parameterType="Integer" resultMap="ModelsResult">
+        <include refid="selectModelsVo"/>
+        where module_id = #{moduleId}
+    </select>
+
+    <insert id="insertModels" parameterType="Models" useGeneratedKeys="true" keyProperty="moduleId">
+        insert into models
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="projectId != null">project_id,</if>
+            <if test="moduleSort != null">modeule_sort,</if>
+            <if test="moduleName != null and moduleName != ''">module_name,</if>
+            <if test="moduleIcon != null and moduleIcon != ''">module_icon,</if>
+            <if test="moduleKey != null and moduleKey != ''">module_key,</if>
+            <if test="moduleDescription != null">module_description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="projectId != null">#{projectId},</if>
+            <if test="moduleSort != null">#{moduleSort},</if>
+            <if test="moduleName != null and moduleName != ''">#{moduleName},</if>
+            <if test="moduleIcon != null and moduleIcon != ''">#{moduleIcon},</if>
+            <if test="moduleKey != null and moduleKey != ''">#{moduleKey},</if>
+            <if test="moduleDescription != null">#{moduleDescription},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateModels" parameterType="Models">
+        update models
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="moduleSort != null">modeule_sort = #{moduleSort},</if>
+            <if test="moduleName != null and moduleName != ''">module_name = #{moduleName},</if>
+            <if test="moduleIcon != null and moduleIcon != ''">module_icon = #{moduleIcon},</if>
+            <if test="moduleKey != null and moduleKey != ''">module_key = #{moduleKey},</if>
+            <if test="moduleDescription != null">module_description = #{moduleDescription},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where module_id = #{moduleId}
+    </update>
+
+    <delete id="deleteModelsByModuleId" parameterType="Integer">
+        delete from models where module_id = #{moduleId}
+    </delete>
+
+    <delete id="deleteModelsByModuleIds" parameterType="String">
+        delete from models where module_id in 
+        <foreach item="moduleId" collection="array" open="(" separator="," close=")">
+            #{moduleId}
+        </foreach>
+    </delete>
+</mapper>
