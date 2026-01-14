@@ -1,6 +1,8 @@
 package com.ruoyi.project.service.impl;
 
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -92,5 +94,16 @@ public class ProjectServiceImpl implements IProjectService
     public int deleteProjectByProjectId(Integer projectId)
     {
         return projectMapper.deleteProjectByProjectId(projectId);
+    }
+
+    @Override
+    public List<Project> selectProjectListByIds(List<Integer> projectIds) {
+        return projectMapper.selectProjectListByIds(projectIds.toArray(new Integer[]{}));
+    }
+
+    @Override
+    public Map<Integer, Project> getProjectMap(List<Integer> projectIds) {
+        List<Project> projects = selectProjectListByIds(projectIds);
+        return projects.stream().collect(java.util.stream.Collectors.toMap(Project::getProjectId, project -> project));
     }
 }

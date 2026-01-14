@@ -1,6 +1,8 @@
 package com.ruoyi.project.service;
 
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.project.domain.Models;
 
 /**
@@ -58,4 +60,18 @@ public interface IModelsService
      * @return 结果
      */
     public int deleteModelsByModuleId(Integer moduleId);
+
+    /**
+     * 根据ids查询项目模块
+     * @param moduleIds 项目模块ids
+     * @return 项目模块集合
+     */
+    List<Models> selectModelsListByIds(List<Integer> moduleIds);
+
+    /**
+     * 根据ids查询项目模块
+     * @param moduleIds 项目模块ids
+     * @return 项目模块集合
+     */
+    Map<Integer, Models> getModuleMap(List<Integer> moduleIds);
 }

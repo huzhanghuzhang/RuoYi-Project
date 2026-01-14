@@ -1,6 +1,8 @@
 package com.ruoyi.project.service;
 
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.project.domain.Project;
 
 /**
@@ -58,4 +60,18 @@ public interface IProjectService
      * @return 结果
      */
     public int deleteProjectByProjectId(Integer projectId);
+
+    /**
+     * 根据项目ID查询项目信息
+     * @param projectIds    项目ID集合
+     * @return 项目信息集合
+     */
+    List<Project> selectProjectListByIds(List<Integer> projectIds);
+
+    /**
+     * 根据项目ID查询项目信息
+     * @param projectIds    项目ID集合
+     * @return 项目信息集合
+     */
+    Map<Integer, Project> getProjectMap(List<Integer> projectIds);
 }

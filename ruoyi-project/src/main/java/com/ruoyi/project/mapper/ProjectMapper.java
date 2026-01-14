@@ -58,4 +58,11 @@ public interface ProjectMapper
      * @return 结果
      */
     public int deleteProjectByProjectIds(Integer[] projectIds);
+
+    /**
+     * 根据项目id查询项目信息
+     * @param projectIds 项目id集合
+     * @return 项目信息集合
+     */
+    List<Project> selectProjectListByIds(Integer[] projectIds);
 }

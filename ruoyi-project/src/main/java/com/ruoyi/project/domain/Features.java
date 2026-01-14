@@ -1,5 +1,6 @@
 package com.ruoyi.project.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -49,6 +50,13 @@ public class Features extends BaseEntity
     /** 功能描述 */
     @Excel(name = "功能描述")
     private String featureDescription;
+
+    /** 模块名称 */
+    private String moduleName;
+    /** 项目名称 */
+    private String projectName;
+    /** 表名 */
+    private String tableName;
 
     public void setFeatureId(Integer featureId) 
     {
@@ -136,6 +144,30 @@ public class Features extends BaseEntity
     public String getFeatureDescription() 
     {
         return featureDescription;
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 
     @Override

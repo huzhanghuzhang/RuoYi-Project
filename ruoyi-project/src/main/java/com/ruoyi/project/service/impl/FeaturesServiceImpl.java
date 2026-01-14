@@ -1,6 +1,8 @@
 package com.ruoyi.project.service.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.ruoyi.common.infrastructure.GenTableInfra;
 import com.ruoyi.common.model.GenTableDto;
@@ -9,6 +11,8 @@ import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.spring.SpringUtils;
 import com.ruoyi.project.domain.Models;
 import com.ruoyi.project.domain.Project;
+import com.ruoyi.project.service.IModelsService;
+import com.ruoyi.project.service.IProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.project.mapper.FeaturesMapper;
@@ -49,7 +53,26 @@ public class FeaturesServiceImpl implements IFeaturesService
     @Override
     public List<Features> selectFeaturesList(Features features)
     {
-        return featuresMapper.selectFeaturesList(features);
+        List<Features> list = featuresMapper.selectFeaturesList(features);
+        //设置项目/模块的名称
+        List<Integer> projectIds = list.stream().map(Features::getProjectId).distinct().collect(Collectors.toList());
+        Map<Integer,Project> projectMap = SpringUtils.getBean(IProjectService.class).getProjectMap(projectIds);
+        List<Integer> moduleIds = list.stream().map(Features::getModuleId).distinct().collect(Collectors.toList());
+        Map<Integer, Models> moduleMap = SpringUtils.getBean(IModelsService.class).getModuleMap(moduleIds);
+        List<Long> tableIds = list.stream().map(Features::getTableId).distinct().collect(Collectors.toList());
+        Map<Long, GenTableDto> tableMap = SpringUtils.getBean(GenTableInfra.class).getTableMap(tableIds);
+        list.forEach(item -> {
+            if(projectMap.containsKey(item.getProjectId())){
+                item.setProjectName(projectMap.get(item.getProjectId()).getProjectName());
+            }
+            if(moduleMap.containsKey(item.getModuleId())){
+                item.setModuleName(moduleMap.get(item.getModuleId()).getModuleName());
+            }
+            if(tableMap.containsKey(item.getTableId())){
+                item.setTableName(tableMap.get(item.getTableId()).getTableName());
+            }
+        });
+        return list;
     }
 
     /**

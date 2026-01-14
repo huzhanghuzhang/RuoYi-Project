@@ -2,6 +2,9 @@ package com.ruoyi.common.infrastructure;
 
 import com.ruoyi.common.model.GenTableDto;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author Hu.Zhang
  * @version 1.0
@@ -16,4 +19,13 @@ public interface GenTableInfra {
     GenTableDto updateTable(GenTableDto genTableDto);
 
     void deleteTable(Long tableId);
+
+    List<GenTableDto> selectTableListByIds(List<Long> tableIds);
+
+    /**
+     * 根据ids查询表
+     * @param tableIds 表ids
+     * @return 表集合
+     */
+    Map<Long, GenTableDto> getTableMap(List<Long> tableIds);
 }

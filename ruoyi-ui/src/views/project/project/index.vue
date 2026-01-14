@@ -65,6 +65,7 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="ID" align="center" prop="projectId" />
       <el-table-column label="项目名称" align="center" prop="projectName" />
+      <el-table-column label="项目标识" align="center" prop="projectKey" />
       <el-table-column label="项目描述" align="center" prop="projectDescription" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
@@ -85,7 +86,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -99,6 +100,9 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="项目名称" prop="projectName">
           <el-input v-model="form.projectName" placeholder="请输入项目名称" />
+        </el-form-item>
+        <el-form-item label="项目标识" prop="projectKey">
+          <el-input v-model="form.projectKey" placeholder="请输入项目标识" />
         </el-form-item>
         <el-form-item label="项目描述" prop="projectDescription">
           <el-input v-model="form.projectDescription" type="textarea" placeholder="请输入内容" />
@@ -142,6 +146,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         projectName: null,
+        projectKey: null,
         projectDescription: null,
       },
       // 表单参数
@@ -150,6 +155,9 @@ export default {
       rules: {
         projectName: [
           { required: true, message: "项目名称不能为空", trigger: "blur" }
+        ],
+        projectKey: [
+          { required: true, message: "项目标识不能为空", trigger: "blur" }
         ],
       }
     }
@@ -177,6 +185,7 @@ export default {
       this.form = {
         projectId: null,
         projectName: null,
+        projectKey: null,
         projectDescription: null,
         createBy: null,
         createTime: null,

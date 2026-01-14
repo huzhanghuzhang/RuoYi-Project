@@ -20,6 +20,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -696,6 +697,22 @@ public class GenTableServiceImpl implements IGenTableService, GenTableInfra
         genTableMapper.deleteGenTable(genTable.getTableName());
         genTableMapper.deleteGenTableByIds(new Long[]{tableId});
         genTableColumnMapper.deleteGenTableColumns(genTableColumnMapper.selectGenTableColumnListByTableId(tableId));
+    }
+
+    @Override
+    public List<GenTableDto> selectTableListByIds(List<Long> tableIds) {
+        List<GenTable> tables = genTableMapper.selectGenTableByIds(tableIds.toArray(new Long[]{}));
+        return tables.stream().map(table -> {
+            GenTableDto dto =new GenTableDto();
+            BeanUtils.copyProperties(table, dto);
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<Long, GenTableDto> getTableMap(List<Long> tableIds) {
+        List<GenTableDto> tables = selectTableListByIds(tableIds);
+        return tables.stream().collect(Collectors.toMap(GenTableDto::getTableId, dto -> dto));
     }
 
     /**

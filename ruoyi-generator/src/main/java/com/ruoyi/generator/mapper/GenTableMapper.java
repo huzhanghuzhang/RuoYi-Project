@@ -104,4 +104,6 @@ public interface GenTableMapper
      * @return 执行结果
      */
     int alterTable(String sql);
+
+    List<GenTable> selectGenTableByIds(Long[] tableIds);
 }

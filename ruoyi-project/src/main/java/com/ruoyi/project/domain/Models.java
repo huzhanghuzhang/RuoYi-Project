@@ -42,6 +42,9 @@ public class Models extends BaseEntity
     @Excel(name = "模块描述")
     private String moduleDescription;
 
+    /** 项目名称 */
+    private String projectName;
+
     public void setModuleId(Integer moduleId) 
     {
         this.moduleId = moduleId;
@@ -110,6 +113,14 @@ public class Models extends BaseEntity
     public String getModuleDescription() 
     {
         return moduleDescription;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     @Override

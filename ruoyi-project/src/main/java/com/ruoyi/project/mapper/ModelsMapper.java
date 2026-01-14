@@ -58,4 +58,11 @@ public interface ModelsMapper
      * @return 结果
      */
     public int deleteModelsByModuleIds(Integer[] moduleIds);
+
+    /**
+     * 根据ids查询项目模块
+     * @param moduleIds 模块id集合
+     * @return 模块集合
+     */
+    List<Models> selectModelsListByIds(Integer[] moduleIds);
 }

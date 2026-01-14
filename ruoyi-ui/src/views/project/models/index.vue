@@ -80,7 +80,7 @@
     <el-table v-loading="loading" :data="modelsList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="ID" align="center" prop="moduleId" />
-      <el-table-column label="项目ID" align="center" prop="projectId" />
+      <el-table-column label="项目" align="center" prop="projectName" />
       <el-table-column label="模块排序" align="center" prop="moduleSort" />
       <el-table-column label="模块名称" align="center" prop="moduleName" />
       <el-table-column label="模块图标" align="center" prop="moduleIcon" />

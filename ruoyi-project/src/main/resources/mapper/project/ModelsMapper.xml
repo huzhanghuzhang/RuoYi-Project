@@ -38,6 +38,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectModelsVo"/>
         where module_id = #{moduleId}
     </select>
+    <select id="selectModelsListByIds" resultMap="ModelsResult">
+        <include refid="selectModelsVo"/>
+        where module_id in
+        <foreach item="moduleId" collection="array" open="(" separator="," close=")">
+            #{moduleId}
+        </foreach>
+    </select>
 
     <insert id="insertModels" parameterType="Models" useGeneratedKeys="true" keyProperty="moduleId">
         insert into models

@@ -102,15 +102,15 @@
 
     <el-table v-loading="loading" :data="featuresList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="ID" align="center" prop="featureId" />
-      <el-table-column label="代码生成表ID" align="center" prop="tableId" />
-      <el-table-column label="项目ID" align="center" prop="projectId" />
-      <el-table-column label="模块ID" align="center" prop="moduleId" />
-      <el-table-column label="功能排序" align="center" prop="featureSort" />
-      <el-table-column label="功能名称" align="center" prop="featureName" />
-      <el-table-column label="功能图标" align="center" prop="featureIcon" />
-      <el-table-column label="功能标识(菜单路由)" align="center" prop="featureKey" />
-      <el-table-column label="功能描述" align="center" prop="featureDescription" />
+      <el-table-column label="ID" align="center" prop="featureId" width="50"/>
+      <el-table-column label="代码生成表" align="center" prop="tableName" width="120" />
+      <el-table-column label="项目" align="center" prop="projectName" width="120" />
+      <el-table-column label="模块" align="center" prop="moduleName" width="120" />
+      <el-table-column label="功能排序" align="center" prop="featureSort" width="120" />
+      <el-table-column label="功能名称" align="center" prop="featureName" width="180" />
+      <el-table-column label="功能图标" align="center" prop="featureIcon" width="120" />
+      <el-table-column label="功能标识" align="center" prop="featureKey" width="120" />
+      <el-table-column label="功能描述" align="center" prop="featureDescription" width=200 />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -120,6 +120,13 @@
             @click="handleUpdate(scope.row)"
             v-hasPermi="['project:features:edit']"
           >修改</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-setting"
+            @click="handleConfigDetail(scope.row)"
+            v-hasPermi="['project:features:config']"
+          >配置详情</el-button>
           <el-button
             size="mini"
             type="text"
@@ -438,6 +445,13 @@ export default {
         this.getList()
         this.$modal.msgSuccess("删除成功")
       }).catch(() => {})
+    },
+    /** 配置详情按钮操作 */
+    handleConfigDetail(row) {
+      const tableId = row.tableId;
+      const tableName = row.featureName;
+      const params = { pageNum: this.queryParams.pageNum }
+      this.$tab.openPage("修改[" + tableName + "]生成配置", '/tool/gen-edit/index/' + tableId, params)
     },
     /** 导出按钮操作 */
     handleExport() {

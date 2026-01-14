@@ -1,7 +1,14 @@
 package com.ruoyi.project.service.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.spring.SpringUtils;
+import com.ruoyi.project.domain.Features;
+import com.ruoyi.project.domain.Project;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.project.mapper.ModelsMapper;
@@ -41,7 +48,17 @@ public class ModelsServiceImpl implements IModelsService
     @Override
     public List<Models> selectModelsList(Models models)
     {
-        return modelsMapper.selectModelsList(models);
+        List<Models> list = modelsMapper.selectModelsList(models);
+        if(CollectionUtils.isNotEmpty(list)){
+            List<Integer> projectIds = list.stream().map(Models::getProjectId).distinct().collect(Collectors.toList());
+            Map<Integer,Project> projectMap = SpringUtils.getBean(ProjectServiceImpl.class).getProjectMap(projectIds);
+            list.forEach(item -> {
+                if(projectMap.containsKey(item.getProjectId())){
+                    item.setProjectName(projectMap.get(item.getProjectId()).getProjectName());
+                }
+            });
+        }
+        return list;
     }
 
     /**
@@ -92,5 +109,16 @@ public class ModelsServiceImpl implements IModelsService
     public int deleteModelsByModuleId(Integer moduleId)
     {
         return modelsMapper.deleteModelsByModuleId(moduleId);
+    }
+
+    @Override
+    public List<Models> selectModelsListByIds(List<Integer> moduleIds) {
+        return modelsMapper.selectModelsListByIds(moduleIds.toArray(new Integer[]{}));
+    }
+
+    @Override
+    public Map<Integer, Models> getModuleMap(List<Integer> moduleIds) {
+        List<Models> list = selectModelsListByIds(moduleIds);
+        return list.stream().collect(Collectors.toMap(Models::getModuleId, item -> item));
     }
 }
