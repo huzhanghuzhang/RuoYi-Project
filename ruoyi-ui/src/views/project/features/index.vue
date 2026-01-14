@@ -355,7 +355,7 @@ export default {
     reset() {
       this.form = {
         featureId: null,
-        tableId: null,
+        tableId: 0,
         projectId: null,
         moduleId: null,
         featureSort: null,
