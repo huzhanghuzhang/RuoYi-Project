@@ -79,13 +79,13 @@
 
     <el-table v-loading="loading" :data="modelsList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="ID" align="center" prop="moduleId" />
-      <el-table-column label="项目" align="center" prop="projectName" />
-      <el-table-column label="模块排序" align="center" prop="moduleSort" />
-      <el-table-column label="模块名称" align="center" prop="moduleName" />
-      <el-table-column label="模块图标" align="center" prop="moduleIcon" />
-      <el-table-column label="模块标识" align="center" prop="moduleKey" />
-      <el-table-column label="模块描述" align="center" prop="moduleDescription" />
+      <el-table-column label="ID" align="center" prop="moduleId" width="50" />
+      <el-table-column label="项目" align="center" prop="projectName"  width="120" />
+      <el-table-column label="模块排序" align="center" prop="moduleSort" width="120" />
+      <el-table-column label="模块名称" align="center" prop="moduleName" width="180" />
+      <el-table-column label="模块图标" align="center" prop="moduleIcon" width="120" />
+      <el-table-column label="模块标识" align="center" prop="moduleKey" width="120" />
+      <el-table-column label="模块描述" align="center" prop="moduleDescription"  width="200" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -102,6 +102,13 @@
             @click="handleDelete(scope.row)"
             v-hasPermi="['project:models:remove']"
           >删除</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-cpu"
+            @click="handleGenModule(scope.row)"
+            v-hasPermi="['project:models:gen']"
+          >生成模块</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -369,6 +376,13 @@ export default {
       this.download('project/models/export', {
         ...this.queryParams
       }, `models_${new Date().getTime()}.xlsx`)
+    },
+    /** 生成模块按钮操作 */
+    handleGenModule(row) {
+      console.log('开始生成模块:', row);
+      const moduleName = row.moduleName;
+      const zipName = Array.isArray(moduleName) ? "ruoyi.zip" : moduleName + ".zip"
+      this.$download.zip("/project/models/genModule?moduleId=" + row.moduleId, zipName)
     }
   }
 }

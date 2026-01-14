@@ -58,4 +58,11 @@ public interface FeaturesMapper
      * @return 结果
      */
     public int deleteFeaturesByFeatureIds(Integer[] featureIds);
+
+    /**
+     * 根据模块id查询项目模块功能列表
+     * @param moduleId 模块id
+     * @return 项目模块功能列表
+     */
+    List<Features> selectFeaturesListByModuleId(Integer moduleId);
 }

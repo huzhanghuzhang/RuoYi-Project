@@ -158,4 +158,9 @@ public class FeaturesServiceImpl implements IFeaturesService
     {
         return featuresMapper.deleteFeaturesByFeatureId(featureId);
     }
+
+    @Override
+    public List<Features> selectFeaturesListByModuleId(Integer moduleId) {
+        return featuresMapper.selectFeaturesListByModuleId(moduleId);
+    }
 }

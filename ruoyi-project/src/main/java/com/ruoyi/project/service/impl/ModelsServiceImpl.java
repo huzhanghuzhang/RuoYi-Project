@@ -1,14 +1,19 @@
 package com.ruoyi.project.service.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.zip.ZipOutputStream;
 
+import com.ruoyi.common.infrastructure.GenTableInfra;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.spring.SpringUtils;
 import com.ruoyi.project.domain.Features;
 import com.ruoyi.project.domain.Project;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.project.mapper.ModelsMapper;
@@ -120,5 +125,16 @@ public class ModelsServiceImpl implements IModelsService
     public Map<Integer, Models> getModuleMap(List<Integer> moduleIds) {
         List<Models> list = selectModelsListByIds(moduleIds);
         return list.stream().collect(Collectors.toMap(Models::getModuleId, item -> item));
+    }
+
+    @Override
+    public byte[] genModule(Integer moduleId) {
+        Models models = selectModelsByModuleId(moduleId);
+        //处理modelName驼峰换成中横线
+        String modelName = StringUtils.toUnderScoreCase(models.getModuleKey()).replace('_', '-');
+        
+        List<Features> features = SpringUtils.getBean(FeaturesServiceImpl.class).selectFeaturesListByModuleId(moduleId);
+        List<Long> tableIds = features.stream().map(Features::getTableId).distinct().collect(Collectors.toList());
+        return SpringUtils.getBean(GenTableInfra.class).generatorModule(modelName, tableIds);
     }
 }

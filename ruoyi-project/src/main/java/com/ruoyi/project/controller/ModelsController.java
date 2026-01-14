@@ -1,7 +1,10 @@
 package com.ruoyi.project.controller;
 
+import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.IOUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -100,5 +103,28 @@ public class ModelsController extends BaseController
     public AjaxResult remove(@PathVariable Integer[] moduleIds)
     {
         return toAjax(modelsService.deleteModelsByModuleIds(moduleIds));
+    }
+
+    @PreAuthorize("@ss.hasPermi('project:models:gen')")
+    @Log(title = "生成模块", businessType = BusinessType.GENCODE)
+    @GetMapping("/genModule")
+    public void genModule(HttpServletResponse response, Integer moduleId) throws IOException
+    {
+    	byte[] data = modelsService.genModule(moduleId);
+        genCode(response, data);
+    }
+
+    /**
+     * 生成zip文件
+     */
+    private void genCode(HttpServletResponse response, byte[] data) throws IOException
+    {
+        response.reset();
+        response.addHeader("Access-Control-Allow-Origin", "*");
+        response.addHeader("Access-Control-Expose-Headers", "Content-Disposition");
+        response.setHeader("Content-Disposition", "attachment; filename=\"ruoyi.zip\"");
+        response.addHeader("Content-Length", "" + data.length);
+        response.setContentType("application/octet-stream; charset=UTF-8");
+        IOUtils.write(data, response.getOutputStream());
     }
 }

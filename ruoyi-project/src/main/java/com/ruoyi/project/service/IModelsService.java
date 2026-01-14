@@ -74,4 +74,11 @@ public interface IModelsService
      * @return 项目模块集合
      */
     Map<Integer, Models> getModuleMap(List<Integer> moduleIds);
+
+    /**
+     * 生成项目模块
+     * @param moduleId 项目模块id
+     * @return 项目模块文件
+     */
+    byte[] genModule(Integer moduleId);
 }

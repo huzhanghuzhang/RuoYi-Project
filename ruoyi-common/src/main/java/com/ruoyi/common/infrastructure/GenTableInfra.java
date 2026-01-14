@@ -28,4 +28,13 @@ public interface GenTableInfra {
      * @return 表集合
      */
     Map<Long, GenTableDto> getTableMap(List<Long> tableIds);
+
+    /**
+     * 根据ids生成代码
+     *
+     * @param modelName 模块名称
+     * @param tableIds  表ids
+     * @return 生成的代码
+     */
+    byte[] generatorModule(String modelName, List<Long> tableIds);
 }

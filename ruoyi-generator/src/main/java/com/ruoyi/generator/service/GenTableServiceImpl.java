@@ -13,6 +13,7 @@ import java.util.zip.ZipOutputStream;
 import com.ruoyi.common.infrastructure.GenTableInfra;
 import com.ruoyi.common.model.GenTableDto;
 import com.ruoyi.common.utils.SecurityUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.Template;
@@ -465,6 +466,101 @@ public class GenTableServiceImpl implements IGenTableService, GenTableInfra
     }
 
     /**
+     * 批量生成代码（下载方式）
+     *
+     * @param modelName 模块名称
+     * @param tableIds  表数组
+     * @return 数据
+     */
+    private byte[] downloadModuleCode(String modelName, Long[] tableIds)
+    {
+        List<GenTable> tables = genTableMapper.selectGenTableByIds(tableIds);
+        if(CollectionUtils.isEmpty(tables)){
+            return new byte[0];
+        }
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ZipOutputStream zip = new ZipOutputStream(outputStream);
+        for (GenTable table : tables)
+        {
+            generatorCodeV2(table,modelName, zip);
+        }
+        generatorPom(modelName, zip);
+        IOUtils.closeQuietly(zip);
+        return outputStream.toByteArray();
+    }
+
+    private static void generatorPom(String modelName, ZipOutputStream zip) {
+        String pomTemplate = "vm/pom/pom.xml.vm";
+        VelocityContext context = new VelocityContext();
+        context.put("modelName", modelName);
+
+        // 渲染模板
+        StringWriter sw = new StringWriter();
+        Template tpl = Velocity.getTemplate(pomTemplate, Constants.UTF8);
+        tpl.merge(context, sw);
+        String pomPath = modelName + "/pom.xml";
+        try
+        {
+            // 添加到zip
+            zip.putNextEntry(new ZipEntry(pomPath));
+            IOUtils.write(sw.toString(), zip, Constants.UTF8);
+            IOUtils.closeQuietly(sw);
+            zip.flush();
+            zip.closeEntry();
+        }
+        catch (IOException e)
+        {
+            log.error("渲染模板失败，POM", e);
+        }
+    }
+
+    private void generatorCodeV2(GenTable genTable, String modelName, ZipOutputStream zip) {
+        // 查询表信息
+        GenTable table = genTableMapper.selectGenTableByName(genTable.getTableName());
+        // 设置主子表信息
+        setSubTable(table);
+        // 设置主键列信息
+        setPkColumn(table);
+
+        VelocityInitializer.initVelocity();
+
+        VelocityContext context = VelocityUtils.prepareContext(table);
+
+        // 获取模板列表
+        List<String> templates = VelocityUtils.getTemplateList(table.getTplCategory(), table.getTplWebType());
+        for (String template : templates)
+        {
+            // 渲染模板
+            StringWriter sw = new StringWriter();
+            Template tpl = Velocity.getTemplate(template, Constants.UTF8);
+            tpl.merge(context, sw);
+            try
+            {
+                String filePath = VelocityUtils.getFileName(template, table);
+                if(template.contains("java.vm") || template.contains("mapper.xml.vm")){
+                    filePath = modelName+"/src/"+filePath;
+                }else if(template.contains("vue.vm") || template.contains("js.vm")){
+                    filePath = modelName + "/ui/" + filePath;
+                }else if(template.contains("sql.vm")){
+                    filePath = modelName + "/sql/" + filePath;
+                }else if(template.contains("pom.xml.vm")){
+                    filePath = modelName +"/"+ filePath;
+                }
+                // 添加到zip
+                zip.putNextEntry(new ZipEntry(filePath));
+                IOUtils.write(sw.toString(), zip, Constants.UTF8);
+                IOUtils.closeQuietly(sw);
+                zip.flush();
+                zip.closeEntry();
+            }
+            catch (IOException e)
+            {
+                log.error("渲染模板失败，表名：" + table.getTableName(), e);
+            }
+        }
+    }
+
+    /**
      * 查询表信息并生成代码
      */
     private void generatorCode(String tableName, ZipOutputStream zip)
@@ -713,6 +809,11 @@ public class GenTableServiceImpl implements IGenTableService, GenTableInfra
     public Map<Long, GenTableDto> getTableMap(List<Long> tableIds) {
         List<GenTableDto> tables = selectTableListByIds(tableIds);
         return tables.stream().collect(Collectors.toMap(GenTableDto::getTableId, dto -> dto));
+    }
+
+    @Override
+    public byte[] generatorModule(String modelName, List<Long> tableIds) {
+        return downloadModuleCode(modelName,tableIds.toArray(new Long[]{}));
     }
 
     /**

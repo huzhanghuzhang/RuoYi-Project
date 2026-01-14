@@ -42,6 +42,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectFeaturesVo"/>
         where feature_id = #{featureId}
     </select>
+    <select id="selectFeaturesListByModuleId" resultMap="FeaturesResult">
+        <include refid="selectFeaturesVo"/>
+        where module_id = #{moduleId}
+    </select>
 
     <insert id="insertFeatures" parameterType="Features" useGeneratedKeys="true" keyProperty="featureId">
         insert into features
