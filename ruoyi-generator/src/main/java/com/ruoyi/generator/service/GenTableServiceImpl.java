@@ -633,6 +633,7 @@ public class GenTableServiceImpl implements IGenTableService, GenTableInfra
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public GenTableDto addTable(GenTableDto genTableDto) {
         GenTable genTable = new GenTable();
         copyProperty(genTableDto, genTable);
@@ -650,7 +651,10 @@ public class GenTableServiceImpl implements IGenTableService, GenTableInfra
         genTableDto.setTableId(genTable.getTableId());
         
         // 添加基础字段到GenTableColumn表
-        addBaseColumns(genTable.getTableId());
+        List<GenTableColumn> genTableColumns = addBaseColumns(genTable.getTableId());
+        genTable.setColumns(genTableColumns);
+
+        alterDbTableStructure(genTable);
         
         return genTableDto;
     }
@@ -667,7 +671,7 @@ public class GenTableServiceImpl implements IGenTableService, GenTableInfra
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public GenTableDto updateTable(GenTableDto genTableDto) {
         GenTable genTable = selectGenTableById(genTableDto.getTableId());
         if(genTable==null){
@@ -682,12 +686,24 @@ public class GenTableServiceImpl implements IGenTableService, GenTableInfra
         return genTableDto;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteTable(Long tableId) {
+        GenTable genTable = selectGenTableById(tableId);
+        if(genTable==null){
+            return;
+        }
+        genTableMapper.deleteGenTable(genTable.getTableName());
+        genTableMapper.deleteGenTableByIds(new Long[]{tableId});
+        genTableColumnMapper.deleteGenTableColumns(genTableColumnMapper.selectGenTableColumnListByTableId(tableId));
+    }
+
     /**
      * 添加基础字段到GenTableColumn表
      * 
      * @param tableId 表ID
      */
-    private void addBaseColumns(Long tableId) {
+    private List<GenTableColumn> addBaseColumns(Long tableId) {
         Date now = new Date();
         String username = SecurityUtils.getUsername();
         
@@ -713,7 +729,7 @@ public class GenTableServiceImpl implements IGenTableService, GenTableInfra
         idColumn.setUpdateBy(username);
         idColumn.setUpdateTime(now);
         genTableColumnMapper.insertGenTableColumn(idColumn);
-        
+
         // 添加create_by字段
         GenTableColumn createByColumn = new GenTableColumn();
         createByColumn.setTableId(tableId);
@@ -736,7 +752,7 @@ public class GenTableServiceImpl implements IGenTableService, GenTableInfra
         createByColumn.setUpdateBy(username);
         createByColumn.setUpdateTime(now);
         genTableColumnMapper.insertGenTableColumn(createByColumn);
-        
+
         // 添加update_by字段
         GenTableColumn updateByColumn = new GenTableColumn();
         updateByColumn.setTableId(tableId);
@@ -760,7 +776,7 @@ public class GenTableServiceImpl implements IGenTableService, GenTableInfra
         updateByColumn.setUpdateBy(username);
         updateByColumn.setUpdateTime(now);
         genTableColumnMapper.insertGenTableColumn(updateByColumn);
-        
+
         // 添加create_time字段
         GenTableColumn createTimeColumn = new GenTableColumn();
         createTimeColumn.setTableId(tableId);
@@ -783,7 +799,7 @@ public class GenTableServiceImpl implements IGenTableService, GenTableInfra
         createTimeColumn.setUpdateBy(username);
         createTimeColumn.setUpdateTime(now);
         genTableColumnMapper.insertGenTableColumn(createTimeColumn);
-        
+
         // 添加update_time字段
         GenTableColumn updateTimeColumn = new GenTableColumn();
         updateTimeColumn.setTableId(tableId);
@@ -806,6 +822,8 @@ public class GenTableServiceImpl implements IGenTableService, GenTableInfra
         updateTimeColumn.setUpdateBy(username);
         updateTimeColumn.setUpdateTime(now);
         genTableColumnMapper.insertGenTableColumn(updateTimeColumn);
+
+        return Arrays.asList(idColumn, createByColumn, updateByColumn, createTimeColumn, updateTimeColumn);
     }
 
     private String buildCreateTableSql(GenTable genTable, List<GenTableColumn> genTableColumns) {

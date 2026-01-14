@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.ruoyi.project.mapper.FeaturesMapper;
 import com.ruoyi.project.domain.Features;
 import com.ruoyi.project.service.IFeaturesService;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 项目模块功能Service业务层处理
@@ -110,8 +111,16 @@ public class FeaturesServiceImpl implements IFeaturesService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteFeaturesByFeatureIds(Integer[] featureIds)
     {
+        for (Integer featureId : featureIds) {
+            Features features = selectFeaturesByFeatureId(featureId);
+            if (features == null) {
+                continue;
+            }
+            SpringUtils.getBean(GenTableInfra.class).deleteTable(features.getTableId());
+        }
         return featuresMapper.deleteFeaturesByFeatureIds(featureIds);
     }
 

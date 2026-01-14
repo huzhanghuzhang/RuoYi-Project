@@ -14,4 +14,6 @@ public interface GenTableInfra {
     GenTableDto addTable(GenTableDto genTableDto);
 
     GenTableDto updateTable(GenTableDto genTableDto);
+
+    void deleteTable(Long tableId);
 }

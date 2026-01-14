@@ -142,8 +142,8 @@
     <!-- 添加或修改项目模块功能对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="120px">
-        <el-form-item label="代码生成表ID" prop="tableId">
-          <el-input v-if="form.featureId" v-model="form.tableId" placeholder="请输入代码生成表ID" :disabled="true" />
+        <el-form-item v-if="form.featureId" label="代码生成表ID" prop="tableId">
+          <el-input v-model="form.tableId" placeholder="请输入代码生成表ID" :disabled="true" />
         </el-form-item>
         <el-form-item label="项目" prop="projectId">
           <el-select
