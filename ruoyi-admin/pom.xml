@@ -67,6 +67,11 @@
             <artifactId>ruoyi-project</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>employee-profiles</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
