@@ -5,12 +5,23 @@
         <basic-info-form ref="basicInfo" :info="info" />
       </el-tab-pane>
       <el-tab-pane label="字段信息" name="columnInfo">
-        <el-table ref="dragTable" :data="columns" row-key="columnId" :max-height="tableHeight">
+        <!-- 添加和删除字段按钮 -->
+        <div class="table-operate-bar">
+          <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAddColumn">添加字段</el-button>
+          <el-button type="danger" icon="el-icon-delete" size="mini" @click="handleBatchDeleteColumn" :disabled="multiple">删除选中</el-button>
+        </div>
+
+        <el-table ref="dragTable" :data="columns" row-key="columnId" :max-height="tableHeight" @selection-change="handleSelectionChange">
+          <el-table-column label="选择" type="selection" width="55" align="center" />
           <el-table-column label="序号" type="index" min-width="5%" class-name="allowDrag"/>
-          <el-table-column label="字段列名" prop="columnName" min-width="10%" :show-overflow-tooltip="true" class-name="allowDrag"/>
+          <el-table-column label="字段列名" prop="columnName" min-width="10%" :show-overflow-tooltip="true" class-name="allowDrag">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.columnName" placeholder="请输入字段列名"></el-input>
+            </template>
+          </el-table-column>
           <el-table-column label="字段描述" min-width="10%">
             <template slot-scope="scope">
-              <el-input v-model="scope.row.columnComment"></el-input>
+              <el-input v-model="scope.row.columnComment" placeholder="请输入字段描述"></el-input>
             </template>
           </el-table-column>
           <el-table-column
@@ -18,10 +29,14 @@
             prop="columnType"
             min-width="10%"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.columnType" placeholder="请输入物理类型"></el-input>
+            </template>
+          </el-table-column>
           <el-table-column label="Java类型" min-width="11%">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.javaType">
+              <el-select v-model="scope.row.javaType" placeholder="请选择Java类型">
                 <el-option label="Long" value="Long" />
                 <el-option label="String" value="String" />
                 <el-option label="Integer" value="Integer" />
@@ -34,7 +49,7 @@
           </el-table-column>
           <el-table-column label="java属性" min-width="10%">
             <template slot-scope="scope">
-              <el-input v-model="scope.row.javaField"></el-input>
+              <el-input v-model="scope.row.javaField" placeholder="请输入java属性"></el-input>
             </template>
           </el-table-column>
 
@@ -58,9 +73,19 @@
               <el-checkbox true-label="1" false-label="0" v-model="scope.row.isQuery"></el-checkbox>
             </template>
           </el-table-column>
+          <el-table-column label="主键" min-width="5%">
+            <template slot-scope="scope">
+              <el-radio v-model="scope.row.isPk" :label="'1'" @change="handleIsPkChange(scope.row)">是</el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column label="自增" min-width="5%">
+            <template slot-scope="scope">
+              <el-checkbox true-label="1" false-label="0" v-model="scope.row.isIncrement" :disabled="!scope.row.isPk || scope.row.isPk !== '1'"></el-checkbox>
+            </template>
+          </el-table-column>
           <el-table-column label="查询方式" min-width="10%">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.queryType">
+              <el-select v-model="scope.row.queryType" placeholder="请选择查询方式">
                 <el-option label="=" value="EQ" />
                 <el-option label="!=" value="NE" />
                 <el-option label=">" value="GT" />
@@ -79,7 +104,7 @@
           </el-table-column>
           <el-table-column label="显示类型" min-width="12%">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.htmlType">
+              <el-select v-model="scope.row.htmlType" placeholder="请选择显示类型">
                 <el-option label="文本框" value="input" />
                 <el-option label="文本域" value="textarea" />
                 <el-option label="下拉框" value="select" />
@@ -104,6 +129,16 @@
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ dict.dictType }}</span>
               </el-option>
               </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="100" align="center">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-delete"
+                @click="handleDeleteColumn(scope.$index, scope.row)"
+              >删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -150,7 +185,11 @@ export default {
       // 菜单信息
       menus: [],
       // 表详细信息
-      info: {}
+      info: {},
+      // 选中字段ID列表
+      ids: [],
+      // 非多个字段
+      multiple: true
     }
   },
   created() {
@@ -173,6 +212,78 @@ export default {
     }
   },
   methods: {
+    // 表格多选框选择
+    handleSelectionChange(selection) {
+      this.ids = selection.map(item => item.columnId)
+      this.multiple = !selection.length
+    },
+    // 主键选择变化事件
+    handleIsPkChange(row) {
+      // 如果当前字段被选为主键，取消其他字段的主键状态和自增状态
+      if (row.isPk === '1') {
+        this.columns.forEach(col => {
+          if (col.columnId !== row.columnId) {
+            col.isPk = '0';
+            col.isIncrement = '0'; // 清除其他字段的自增状态
+          }
+        });
+        // 默认勾选当前主键行的自增选项
+        row.isIncrement = '1';
+      }
+    },
+    // 添加字段
+    handleAddColumn() {
+      const newColumn = {
+        columnId: undefined,
+        columnName: '',
+        columnComment: '',
+        columnType: '',
+        javaType: 'String',
+        javaField: '',
+        isInsert: '0',
+        isEdit: '0',
+        isList: '0',
+        isQuery: '0',
+        isPk: '0',
+        isIncrement: '0',
+        queryType: 'EQ',
+        isRequired: '0',
+        htmlType: 'input',
+        dictType: '',
+        sort: this.columns.length + 1
+      };
+      this.columns.push(newColumn);
+    },
+    // 删除指定字段
+    handleDeleteColumn(index, row) {
+      this.$confirm('是否确认删除字段"' + row.columnName + '"？', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function() {
+        return this.$modal.msgSuccess("删除成功");
+      }.bind(this)).then(() => {
+        this.columns.splice(index, 1);
+      });
+    },
+    // 批量删除字段
+    handleBatchDeleteColumn() {
+      if (this.ids.length === 0) {
+        this.$modal.msgError("请至少选择一条记录");
+        return;
+      }
+      this.$confirm('是否确认删除选中的"' + this.ids.length + '"条数据项？', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        const delIds = this.ids;
+        this.columns = this.columns.filter(item => !delIds.includes(item.columnId));
+        this.ids = [];
+        this.multiple = true;
+        return this.$modal.msgSuccess("删除成功");
+      });
+    },
     /** 提交按钮 */
     submitForm() {
       const basicForm = this.$refs.basicInfo.$refs.basicInfoForm
@@ -227,3 +338,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.table-operate-bar {
+  margin-bottom: 10px;
+}
+</style>

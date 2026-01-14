@@ -17,9 +17,9 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="模块" prop="modeuleId">
+      <el-form-item label="模块" prop="moduleId">
         <el-select
-          v-model="queryParams.modeuleId"
+          v-model="queryParams.moduleId"
           placeholder="请选择模块"
           clearable
           style="width: 240px;"
@@ -105,7 +105,7 @@
       <el-table-column label="ID" align="center" prop="featureId" />
       <el-table-column label="代码生成表ID" align="center" prop="tableId" />
       <el-table-column label="项目ID" align="center" prop="projectId" />
-      <el-table-column label="模块ID" align="center" prop="modeuleId" />
+      <el-table-column label="模块ID" align="center" prop="moduleId" />
       <el-table-column label="功能排序" align="center" prop="featureSort" />
       <el-table-column label="功能名称" align="center" prop="featureName" />
       <el-table-column label="功能图标" align="center" prop="featureIcon" />
@@ -143,7 +143,7 @@
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="120px">
         <el-form-item label="代码生成表ID" prop="tableId">
-          <el-input v-model="form.tableId" placeholder="请输入代码生成表ID" />
+          <el-input v-if="form.featureId" v-model="form.tableId" placeholder="请输入代码生成表ID" :disabled="true" />
         </el-form-item>
         <el-form-item label="项目" prop="projectId">
           <el-select
@@ -160,9 +160,9 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="模块" prop="modeuleId">
+        <el-form-item label="模块" prop="moduleId">
           <el-select
-            v-model="form.modeuleId"
+            v-model="form.moduleId"
             placeholder="请选择模块"
             style="width: 100%;"
             :disabled="!form.projectId"
@@ -254,7 +254,7 @@ export default {
         pageSize: 10,
         tableId: null,
         projectId: null,
-        modeuleId: null,
+        moduleId: null,
         featureSort: null,
         featureName: null,
         featureIcon: null,
@@ -271,7 +271,7 @@ export default {
         projectId: [
           { required: true, message: "项目ID不能为空", trigger: "blur" }
         ],
-        modeuleId: [
+        moduleId: [
           { required: true, message: "模块ID不能为空", trigger: "blur" }
         ],
         featureSort: [
@@ -319,7 +319,7 @@ export default {
     handleProjectChange(val) {
       if (!val) {
         // 如果清空项目选择，则清空模块选择并加载所有模块
-        this.queryParams.modeuleId = null;
+        this.queryParams.moduleId = null;
         this.getModuleList();
       } else {
         // 根据所选项目获取对应模块
@@ -330,7 +330,7 @@ export default {
     handleDialogProjectChange(val) {
       if (!val) {
         // 如果清空项目选择，则清空模块选择并加载所有模块
-        this.form.modeuleId = null;
+        this.form.moduleId = null;
         this.getModuleList();
       } else {
         // 根据所选项目获取对应模块
@@ -357,7 +357,7 @@ export default {
         featureId: null,
         tableId: null,
         projectId: null,
-        modeuleId: null,
+        moduleId: null,
         featureSort: null,
         featureName: null,
         featureIcon: null,

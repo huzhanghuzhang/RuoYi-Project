@@ -28,7 +28,7 @@ public class Features extends BaseEntity
 
     /** 模块ID */
     @Excel(name = "模块ID")
-    private Integer modeuleId;
+    private Integer moduleId;
 
     /** 功能排序 */
     @Excel(name = "功能排序")
@@ -80,17 +80,15 @@ public class Features extends BaseEntity
         return projectId;
     }
 
-    public void setModeuleId(Integer modeuleId) 
-    {
-        this.modeuleId = modeuleId;
+    public Integer getModuleId() {
+        return moduleId;
     }
 
-    public Integer getModeuleId() 
-    {
-        return modeuleId;
+    public void setModuleId(Integer moduleId) {
+        this.moduleId = moduleId;
     }
 
-    public void setFeatureSort(Integer featureSort) 
+    public void setFeatureSort(Integer featureSort)
     {
         this.featureSort = featureSort;
     }
@@ -146,7 +144,7 @@ public class Features extends BaseEntity
             .append("featureId", getFeatureId())
             .append("tableId", getTableId())
             .append("projectId", getProjectId())
-            .append("modeuleId", getModeuleId())
+            .append("moduleId", getModuleId())
             .append("featureSort", getFeatureSort())
             .append("featureName", getFeatureName())
             .append("featureIcon", getFeatureIcon())

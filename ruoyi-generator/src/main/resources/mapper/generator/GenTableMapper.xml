@@ -175,6 +175,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ${sql}
     </update>
     
+    <update id="alterTable" parameterType="String">
+        ${sql}
+    </update>
+    
     <update id="updateGenTable" parameterType="GenTable">
         update gen_table
         <set>

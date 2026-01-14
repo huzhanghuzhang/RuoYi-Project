@@ -7,7 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="Models" id="ModelsResult">
         <result property="moduleId"    column="module_id"    />
         <result property="projectId"    column="project_id"    />
-        <result property="moduleSort"    column="modeule_sort"    />
+        <result property="moduleSort"    column="module_sort"    />
         <result property="moduleName"    column="module_name"    />
         <result property="moduleIcon"    column="module_icon"    />
         <result property="moduleKey"    column="module_key"    />
@@ -19,14 +19,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectModelsVo">
-        select module_id, project_id, modeule_sort, module_name, module_icon, module_key, module_description, create_by, create_time, update_by, update_time from models
+        select module_id, project_id, module_sort, module_name, module_icon, module_key, module_description, create_by, create_time, update_by, update_time from models
     </sql>
 
     <select id="selectModelsList" parameterType="Models" resultMap="ModelsResult">
         <include refid="selectModelsVo"/>
         <where>  
             <if test="projectId != null "> and project_id = #{projectId}</if>
-            <if test="moduleSort != null "> and modeule_sort = #{moduleSort}</if>
+            <if test="moduleSort != null "> and module_sort = #{moduleSort}</if>
             <if test="moduleName != null  and moduleName != ''"> and module_name like concat('%', #{moduleName}, '%')</if>
             <if test="moduleIcon != null  and moduleIcon != ''"> and module_icon = #{moduleIcon}</if>
             <if test="moduleKey != null  and moduleKey != ''"> and module_key = #{moduleKey}</if>
@@ -43,7 +43,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into models
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="projectId != null">project_id,</if>
-            <if test="moduleSort != null">modeule_sort,</if>
+            <if test="moduleSort != null">module_sort,</if>
             <if test="moduleName != null and moduleName != ''">module_name,</if>
             <if test="moduleIcon != null and moduleIcon != ''">module_icon,</if>
             <if test="moduleKey != null and moduleKey != ''">module_key,</if>
@@ -71,7 +71,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update models
         <trim prefix="SET" suffixOverrides=",">
             <if test="projectId != null">project_id = #{projectId},</if>
-            <if test="moduleSort != null">modeule_sort = #{moduleSort},</if>
+            <if test="moduleSort != null">module_sort = #{moduleSort},</if>
             <if test="moduleName != null and moduleName != ''">module_name = #{moduleName},</if>
             <if test="moduleIcon != null and moduleIcon != ''">module_icon = #{moduleIcon},</if>
             <if test="moduleKey != null and moduleKey != ''">module_key = #{moduleKey},</if>

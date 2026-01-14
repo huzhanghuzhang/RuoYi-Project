@@ -61,7 +61,7 @@ public class FeaturesServiceImpl implements IFeaturesService
     public int insertFeatures(Features features)
     {
         Project project = SpringUtils.getBean(ProjectServiceImpl.class).selectProjectByProjectId(features.getProjectId());
-        Models models = SpringUtils.getBean(ModelsServiceImpl.class).selectModelsByModuleId(features.getModeuleId());
+        Models models = SpringUtils.getBean(ModelsServiceImpl.class).selectModelsByModuleId(features.getModuleId());
 
         GenTableDto genTableDto = convertToDto(features, project, models);
         genTableDto = SpringUtils.getBean(GenTableInfra.class).addTable(genTableDto);
@@ -93,7 +93,7 @@ public class FeaturesServiceImpl implements IFeaturesService
     public int updateFeatures(Features features)
     {
         Project project = SpringUtils.getBean(ProjectServiceImpl.class).selectProjectByProjectId(features.getProjectId());
-        Models models = SpringUtils.getBean(ModelsServiceImpl.class).selectModelsByModuleId(features.getModeuleId());
+        Models models = SpringUtils.getBean(ModelsServiceImpl.class).selectModelsByModuleId(features.getModuleId());
 
         GenTableDto genTableDto = convertToDto(features, project, models);
         genTableDto.setTableId(features.getTableId());

@@ -96,4 +96,12 @@ public interface GenTableMapper
      * @return 删除结果
      */
     int deleteGenTable(String tableName);
+
+    /**
+     * 执行ALTER TABLE语句
+     *
+     * @param sql ALTER语句
+     * @return 执行结果
+     */
+    int alterTable(String sql);
 }
